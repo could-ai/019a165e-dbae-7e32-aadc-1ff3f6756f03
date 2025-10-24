@@ -76,10 +76,11 @@ class ScanService {
 
     // Simulate device health checks
     final deviceInfo = await _getDeviceInfo();
-    final batteryInfo = await _getBatteryInfo();
+    final battery = Battery();
+    final batteryLevel = await battery.batteryLevel;
 
     // Check battery health
-    if (batteryInfo.level < 20) {
+    if (batteryLevel < 20) {
       issues.add(Issue(
         id: 'battery_low',
         title: 'Low Battery',
@@ -126,7 +127,7 @@ class ScanService {
     }
 
     // Simulate battery drain issue
-    if (batteryInfo.level > 80 && DateTime.now().hour > 20) {
+    if (batteryLevel > 80 && DateTime.now().hour > 20) {
       batteryIssue = true;
       issues.add(Issue(
         id: 'battery_drain',
@@ -154,7 +155,7 @@ class ScanService {
       if (issue.severity == 'high' || issue.severity == 'critical') {
         await NotificationService.showNotification(
           title: 'Mobile Issue Detected',
-          body: issue.title + ': ' + issue.description,
+          body: '${issue.title}: ${issue.description}',
         );
       }
     }
@@ -166,11 +167,6 @@ class ScanService {
     final deviceInfoPlugin = DeviceInfoPlugin();
     final deviceInfo = await deviceInfoPlugin.deviceInfo;
     return deviceInfo.data;
-  }
-
-  static Future<Battery> _getBatteryInfo() async {
-    final battery = Battery();
-    return battery;
   }
 
   static Future<void> _saveScanResult(ScanResult result) async {
